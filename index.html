@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Lost & Found</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ffecd2, #fcb69f);
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            margin: 60px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff7043;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #f4511e;
+        }
+
+        input, textarea {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: none;
+            height: 70px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .item-card {
+            background: #fff3e0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .back-btn {
+            background-color: #42a5f5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="container" id="home">
+    <h2>Campus Lost & Found</h2>
+    <button onclick="openForm('Lost')">Report Lost Item</button>
+    <button onclick="openForm('Found')">Report Found Item</button>
+    <br>
+    <button onclick="viewItems()">View Lost & Found Items</button>
+</div>
+
+<!-- FORM -->
+<div class="container hidden" id="formSection">
+    <h2 id="formTitle"></h2>
+    <input type="text" id="itemName" placeholder="Item Name" required>
+    <textarea id="description" placeholder="Item Description"></textarea>
+    <input type="text" id="contact" placeholder="Contact Number" required>
+    <br>
+    <button onclick="submitForm()">Submit</button>
+</div>
+
+<!-- SUCCESS -->
+<div class="container hidden" id="successSection">
+    <h2>Submission Successful ✅</h2>
+    <button class="back-btn" onclick="goHome()">Back to Home</button>
+</div>
+
+<!-- VIEW ITEMS -->
+<div class="container hidden" id="viewSection">
+    <h2>Uploaded Items</h2>
+    <div id="itemsList"></div>
+    <button class="back-btn" onclick="goHome()">Back to Home</button>
+</div>
+
+<script>
+    let currentType = "";
+
+    function openForm(type) {
+        currentType = type;
+        document.getElementById("home").classList.add("hidden");
+        document.getElementById("formSection").classList.remove("hidden");
+        document.getElementById("formTitle").innerText = type + " Item Details";
+    }
+
+    function submitForm() {
+        let item = document.getElementById("itemName").value;
+        let desc = document.getElementById("description").value;
+        let contact = document.getElementById("contact").value;
+
+        if (item === "" || contact === "") {
+            alert("Please fill all required fields");
+            return;
+        }
+
+        let data = JSON.parse(localStorage.getItem("items")) || [];
+        data.push({ type: currentType, item, desc, contact });
+        localStorage.setItem("items", JSON.stringify(data));
+
+        document.getElementById("formSection").classList.add("hidden");
+        document.getElementById("successSection").classList.remove("hidden");
+
+        document.getElementById("itemName").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("contact").value = "";
+    }
+
+    function viewItems() {
+        document.getElementById("home").classList.add("hidden");
+        document.getElementById("viewSection").classList.remove("hidden");
+
+        let itemsList = document.getElementById("itemsList");
+        itemsList.innerHTML = "";
+
+        let data = JSON.parse(localStorage.getItem("items")) || [];
+
+        if (data.length === 0) {
+            itemsList.innerHTML = "<p>No items uploaded yet.</p>";
+            return;
+        }
+
+        data.forEach(i => {
+            itemsList.innerHTML += `
+                <div class="item-card">
+                    <b>${i.type} Item</b><br>
+                    <b>Name:</b> ${i.item}<br>
+                    <b>Description:</b> ${i.desc}<br>
+                    <b>Contact:</b> ${i.contact}
+                </div>
+            `;
+        });
+    }
+
+    function goHome() {
+        document.getElementById("home").classList.remove("hidden");
+        document.getElementById("formSection").classList.add("hidden");
+        document.getElementById("successSection").classList.add("hidden");
+        document.getElementById("viewSection").classList.add("hidden");
+    }
+</script>
+
+</body>
+</html>
